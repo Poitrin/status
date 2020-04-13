@@ -7,6 +7,7 @@ services:
       - "8080:80"
     volumes:
       - .:/var/www/html
+      - .composer:/home/docker/.composer
     environment:
       PHP_EXTENSION_PGSQL: 1
       PHP_EXTENSION_MYSQLI: 0
