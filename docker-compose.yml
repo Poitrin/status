@@ -1,0 +1,12 @@
+version: '2'
+services:
+  web:
+    image: thecodingmachine/php:7.4-v3-apache
+    # https://thecodingmachine.io/announcing-tcm-php-docker-image-v2
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      PHP_EXTENSION_PGSQL: 1
+      PHP_EXTENSION_MYSQLI: 0
