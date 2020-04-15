@@ -11,3 +11,4 @@ services:
     environment:
       PHP_EXTENSION_PGSQL: 1
       PHP_EXTENSION_MYSQLI: 0
+      APACHE_DOCUMENT_ROOT: status/public/
