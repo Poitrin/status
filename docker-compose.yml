@@ -13,4 +13,4 @@ services:
       PHP_EXTENSION_PDO_PGSQL: 1
       PHP_EXTENSION_MYSQLI: 0
       PHP_EXTENSION_PDO_MYSQL: 0
-      APACHE_DOCUMENT_ROOT: status/public/
+      APACHE_DOCUMENT_ROOT: public/
