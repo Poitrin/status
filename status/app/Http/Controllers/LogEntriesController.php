@@ -9,7 +9,8 @@ class LogEntriesController extends Controller
 {
   public function create(Request $request)
   {
-      $logEntry = LogEntry::create($request->all());
-      return response()->json($logEntry, 201);
+    LogEntry::deleteOldEntries();
+    $logEntry = LogEntry::create($request->all());
+    return response()->json($logEntry, 201);
   }
 }
