@@ -8,6 +8,6 @@ class CurlCallsController extends Controller
 {
   public function index()
   {
-    return response()->json(CurlCall::all());
+    return response(CurlCall::allCalls())->header('Content-Type', 'application/json');
   }
 }

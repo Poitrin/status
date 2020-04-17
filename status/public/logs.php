@@ -101,7 +101,11 @@
     Plotly.newPlot('cpu-graph', [cpuUsData, cpuSyData]);
     Plotly.newPlot('current-ram-graph', currentRamData);
     Plotly.newPlot('hdd-graph', hddData);
-    Plotly.newPlot('curl-calls', [curlCalls1Data, curlCalls2Data, curlCalls3Data]);
+    fetch('/curl_calls')
+      .then(response => response.json())
+      .then(curlCalls => {
+        Plotly.newPlot('curl-calls', curlCalls);
+      });
   </script>
 </body>
 
