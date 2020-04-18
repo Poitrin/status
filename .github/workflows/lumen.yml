@@ -4,7 +4,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       with:
         fetch-depth: 2
     - name: Create artifact
@@ -22,10 +22,9 @@ jobs:
         name: site
     - name: Deploy to server via FTP
       uses: SamKirkland/FTP-Deploy-Action@3.0.0
-      env:
-        FTP_SERVER: ${{ secrets.FTP_SERVER }}
-        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        LOCAL_DIR: site
-        REMOTE_DIR: .
-        # ARGS: --delete # Remove files on server that are not in the build folder
+      with:
+        ftp-server: ${{ secrets.FTP_SERVER }}
+        ftp-username: ${{ secrets.FTP_USERNAME }}
+        ftp-password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: site
+        # git-ftp-args: --delete # Remove files on server that are not in the build folder
