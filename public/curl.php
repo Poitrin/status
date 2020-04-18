@@ -4,7 +4,7 @@ $config = include('config.php');
 $dbconn = pg_connect("host=$config->DB_HOST dbname=$config->DB_NAME user=$config->DB_USER password=$config->DB_PASSWORD");
 $url = $argv[1];
 
-$output = exec("curl --output /dev/null --silent --write-out '%{url_effective};%{http_code};%{time_total}\n' --head $url");
+$output = exec("curl --output /dev/null --silent --write-out '%{url_effective};%{http_code};%{time_total}\n' --head --max-time 20 $url");
 list($url_effective, $http_code, $time_total) = explode(";", $output);
 $data = array(
   'url_effective' => $url_effective,
