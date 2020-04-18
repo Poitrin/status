@@ -3,11 +3,13 @@ select
 from
   (
   select
-    url_effective as name,
+    a.alias as name,
     'scatter' as type,
-    array_agg(created_at order by created_at) as x,
-    array_agg(time_total * 1000 order by created_at) as y
+    array_agg(c.created_at order by c.created_at) as x,
+    array_agg(c.time_total * 1000 order by c.created_at) as y
   from
-    curl
+    curl c
+  join
+    alias a on c.url_effective = a.url
   group by
-    url_effective ) t
+    url_effective, alias ) t
