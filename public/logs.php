@@ -6,6 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Logs</title>
   <script src="plotly-latest.min.js"></script>
+
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+  </style>
 </head>
 
 <body>
@@ -13,11 +19,6 @@
   function build_query($column)
   {
     return "select array_to_json(array_agg(row_to_json(t))) json from (select created_at x, $column y from logs where $column is not null order by created_at) t";
-  }
-
-  function build_curl_query($url_effective)
-  {
-    return "select array_to_json(array_agg(row_to_json(t))) json from (select created_at x, time_total * 1000 y from curl where url_effective = '$url_effective' and time_total is not null order by created_at) t";
   }
 
   function execute_query($query)
@@ -36,20 +37,19 @@
   $cpu_us_result = execute_query(build_query('cpu_us'));
   $cpu_sy_result = execute_query(build_query('cpu_sy'));
   $sites = include('sites.php');
-  $curl_calls_1 = execute_query(build_curl_query($sites[0]));
-  $curl_calls_2 = execute_query(build_curl_query($sites[1]));
-  $curl_calls_3 = execute_query(build_curl_query($sites[2]));
   ?>
-  <h1>CPU</h1>
+  <h1>Status</h1>
+
+  <h2>CPU</h2>
   <div id="cpu-graph"></div>
 
-  <h1>Current RAM</h1>
+  <h2>Current RAM</h2>
   <div id="current-ram-graph"></div>
 
-  <h1>HDD</h1>
+  <h2>HDD</h2>
   <div id="hdd-graph"></div>
 
-  <h1>Curl calls</h1>
+  <h2>Curl calls</h2>
   <div id="curl-calls"></div>
 
   <?php
@@ -58,18 +58,12 @@
   $hdd_json = pg_fetch_result($hdd_result, 'json');
   $cpu_us_json = pg_fetch_result($cpu_us_result, 'json');
   $cpu_sy_json = pg_fetch_result($cpu_sy_result, 'json');
-  $curl_calls_1_json = pg_fetch_result($curl_calls_1, 'json');
-  $curl_calls_2_json = pg_fetch_result($curl_calls_2, 'json');
-  $curl_calls_3_json = pg_fetch_result($curl_calls_3, 'json');
 
   // Speicher freigeben
   pg_free_result($current_ram_result);
   pg_free_result($hdd_result);
   pg_free_result($cpu_us_result);
   pg_free_result($cpu_sy_result);
-  pg_free_result($curl_calls_1);
-  pg_free_result($curl_calls_2);
-  pg_free_result($curl_calls_3);
 
   // Verbindung schließen
   pg_close($dbconn);
@@ -91,11 +85,14 @@
 
     let currentRamData = [buildData(<?php echo $current_ram_json ?>)];
     let hddData = [buildData(<?php echo $hdd_json ?>)];
-    let cpuUsData = buildData(<?php echo $cpu_us_json ?>, { stackgroup: 'cpu', name: 'us' });
-    let cpuSyData = buildData(<?php echo $cpu_sy_json ?>, { stackgroup: 'cpu', name: 'sy' });
-    let curlCalls1Data = buildData(<?php echo $curl_calls_1_json ?>, { type: 'scatter' });
-    let curlCalls2Data = buildData(<?php echo $curl_calls_2_json ?>, { type: 'scatter' });
-    let curlCalls3Data = buildData(<?php echo $curl_calls_3_json ?>, { type: 'scatter' });
+    let cpuUsData = buildData(<?php echo $cpu_us_json ?>, {
+      stackgroup: 'cpu',
+      name: 'us'
+    });
+    let cpuSyData = buildData(<?php echo $cpu_sy_json ?>, {
+      stackgroup: 'cpu',
+      name: 'sy'
+    });
 
     // https://plotly.com/javascript/filled-area-plots/#stacked-area-chart
     Plotly.newPlot('cpu-graph', [cpuUsData, cpuSyData]);
