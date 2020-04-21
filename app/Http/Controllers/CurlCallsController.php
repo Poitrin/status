@@ -14,9 +14,7 @@ class CurlCallsController extends Controller
   public function create()
   {
     $config = include('config.php');
-    $token = str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']);
-    
-    if ($token !== $config->UPLOAD_SECRET) {
+    if ($request->bearerToken() !== $config->UPLOAD_SECRET) {
       return response('', 401); // Unauthorized
     }
     
