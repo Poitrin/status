@@ -15,10 +15,10 @@ This script sends the following data to the shared web hosting service (`POST /l
 The Lumen app writes the data into the table `logs`.
 
 ### Google Apps Script ping → Status app curl call → Sites to check
-At the same time, a Google Apps Script runs every 5 minutes and calls `GET /ping-servers.php`. This script pings all the sites in `public/sites.php`, via `curl`, and writes the data into the table `curl`.
+At the same time, a Google Apps Script runs every 5 minutes and calls `POST /curl_calls`. This action pings all the sites in `public/sites.php`, via `curl`, and writes the data into the table `curl`.
 
 ### Status app: logs.php
-A dashboard displays all the relevant data.
+A dashboard displays all the relevant data in the `logs` and `curl` tables.
 
 ## Installation
 ### Create config files
