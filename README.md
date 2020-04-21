@@ -27,6 +27,7 @@ A dashboard displays all the relevant data.
   <?php
 
   return (object) array(
+    'UPLOAD_SECRET' => '...',
     'DB_NAME' => '...',
     'DB_USER' => '...',
     'DB_PASSWORD' => '...',
@@ -43,6 +44,8 @@ A dashboard displays all the relevant data.
   );
   ```
 - Copy `.env.example` to `.env` and update values.
+- Update `public/stats.sh` by setting the correct `TOKEN` (it's the same as the `UPLOAD_SECRET`).
+  - Note: This is not yet finalized!
 
 ### Install dependencies
 To install the defined dependencies for your project, run the install command.
