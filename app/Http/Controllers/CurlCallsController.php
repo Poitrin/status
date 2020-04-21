@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\CurlCall;
 
 class CurlCallsController extends Controller
@@ -11,7 +12,7 @@ class CurlCallsController extends Controller
     return response(CurlCall::allCalls())->header('Content-Type', 'application/json');
   }
 
-  public function create()
+  public function create(Request $request)
   {
     $config = include('config.php');
     if ($request->bearerToken() !== $config->UPLOAD_SECRET) {
