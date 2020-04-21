@@ -1,24 +1,113 @@
-# Lumen PHP Framework
+# Status
+This Lumen app is currently hosted on a shared web hosting service by Hetzner. My current web space has 10 GB of HDD, 192 MB RAM, an execution limit of up to 120 seconds, a PostgreSQL 9 database, and allows no cron jobs.
 
-[![Build Status](https://travis-ci.org/laravel/lumen-framework.svg)](https://travis-ci.org/laravel/lumen-framework)
-[![Total Downloads](https://poser.pugx.org/laravel/lumen-framework/d/total.svg)](https://packagist.org/packages/laravel/lumen-framework)
-[![Latest Stable Version](https://poser.pugx.org/laravel/lumen-framework/v/stable.svg)](https://packagist.org/packages/laravel/lumen-framework)
-[![License](https://poser.pugx.org/laravel/lumen-framework/license.svg)](https://packagist.org/packages/laravel/lumen-framework)
+I wanted to find out whether a Lumen app runs smoothly on a shared web hosting service, and how the app can easily be deployed via FTP (because that's the only option I have) and GitHub.
 
-Laravel Lumen is a stunningly fast PHP micro-framework for building web applications with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Lumen attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as routing, database abstraction, queueing, and caching.
+## Architecture
+### VPS health condition → Status app
+My Linux VPS (currently hosting a Rails, Grails and Phoenix app) executes the script `public/stats.sh` every minute via a cron job.
+This script sends the following data to the shared web hosting service (`POST /logs`):
+- `cpu_us`
+- `cpu_sy`
+- `current_ram`
+- `total_ram`
+- `hdd`
+The Lumen app writes the data into the table `logs`.
 
-## Official Documentation
+### Google Apps Script ping → Status app curl call → Sites to check
+At the same time, a Google Apps Script runs every 5 minutes and calls `GET /ping-servers.php`. This script pings all the sites in `public/sites.php`, via `curl`, and writes the data into the table `curl`.
 
-Documentation for the framework can be found on the [Lumen website](https://lumen.laravel.com/docs).
+### Status app: logs.php
+A dashboard displays all the relevant data.
 
-## Contributing
+## Installation
+### Create config files
+- Create file `public/config.php` with your DB config:
+  ```php
+  <?php
 
-Thank you for considering contributing to Lumen! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+  return (object) array(
+    'DB_NAME' => '...',
+    'DB_USER' => '...',
+    'DB_PASSWORD' => '...',
+    'DB_HOST' => '...'
+  );
+  ```
+- Create file `public/sites.php` with your sites to check:
+  ```php
+  <?php
 
-## Security Vulnerabilities
+  return array(
+    "https://...",
+    ...
+  );
+  ```
+- Copy `.env.example` to `.env` and update values.
 
-If you discover a security vulnerability within Lumen, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
+### Install dependencies
+To install the defined dependencies for your project, run the install command.
+```shell
+php composer.phar install
+```
+
+### Create database tables
+- Execute the following DDL commands:
+  ```sql
+  CREATE TABLE public.alias (
+    id serial NOT NULL,
+    created_at timestamp NULL DEFAULT now(),
+    url varchar NOT NULL,
+    alias varchar NOT NULL,
+    CONSTRAINT alias_pkey PRIMARY KEY (id)
+  );
+
+  CREATE TABLE public.logs (
+    id serial NOT NULL,
+    created_at timestamp NULL DEFAULT now(),
+    cpu_us float4 NOT NULL,
+    current_ram int4 NOT NULL,
+    total_ram int4 NOT NULL,
+    hdd float4 NOT NULL,
+    cpu_sy float4 NULL,
+    CONSTRAINT logs_pkey PRIMARY KEY (id)
+  );
+
+  CREATE TABLE public.curl (
+    id serial NOT NULL,
+    created_at timestamp NULL DEFAULT now(),
+    url_effective varchar NULL,
+    http_code int4 NULL,
+    time_total float4 NULL,
+    CONSTRAINT curl_pkey PRIMARY KEY (id)
+  );
+  ```
+- Add your sites into the `alias` table.
+
+### Start server
+- Create a `.composer` directory (it's defined as a volume in `docker-compose.yml`)
+- Start the server:
+  ```
+  docker-compose up
+  ```
+
+### Misc.
+In case you want to install `lumen-installer`:
+```shell
+docker-compose run --rm web bash
+# In Container:
+composer global require "laravel/lumen-installer"
+```
+
+## Deployment
+- Make sure you have installed all dependencies via `composer`.
+- Make sure your `.env` file contains the correct configuration (`APP_DEBUG`, database connection, etc.).
+- Upload all your files via FTP (or whatever you like).
+  - Tip: FTP is quite slow for all the files in `vendor`. ZIP all your files, upload the archive via FTP, connect to your server via SSH and extract the archive.
+  - If you have no SSH access, you can try writing a small PHP helper script that uses `exec(...)` to unzip the archive.
+
+### Deployment via GitHub Actions
+This repo has a GitHub Actions workflow for continuous deployment. It uses [`FTP-Deploy-Action`](https://github.com/SamKirkland/FTP-Deploy-Action), which uses [`git-ftp`](https://github.com/git-ftp/git-ftp) behind the scenes. For each new commit, the changed files are calculated and then uploaded via FTP.
 
 ## License
 
-The Lumen framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The app is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

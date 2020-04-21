@@ -19,3 +19,4 @@ $router->get('/', function () use ($router) {
 
 $router->post('logs', 'LogEntriesController@create');
 $router->get('curl_calls', 'CurlCallsController@index');
+$router->post('curl_calls', 'CurlCallsController@create');
