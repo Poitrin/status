@@ -101,7 +101,13 @@
     fetch('/curl_calls')
       .then(response => response.json())
       .then(curlCalls => {
-        Plotly.newPlot('curl-calls', curlCalls);
+        const layout = {
+          yaxis: {
+            zeroline: true
+          },
+          boxmode: 'group'
+        };
+        Plotly.newPlot('curl-calls', curlCalls, layout);
       });
   </script>
 </body>
