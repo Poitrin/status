@@ -5,12 +5,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: |
+        echo "::set-output name=dir::$(composer config cache-files-dir)"
+    - uses: actions/cache@v2
+      name: Cache Composer Downloads
       with:
-        fetch-depth: 2
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+    - name: Install Composer dependencies
+      run: |
+        composer install --prefer-dist --no-interaction --no-suggest --optimize-autoloader
+    - name: Zip vendor and app folder
+      run: |
+        mkdir zips
+        zip -qq -r ./zips/vendor.zip vendor
+        zip -qq -r ./zips/app.zip app bootstrap database public resources routes artisan
     - name: Deploy to server via FTP
-      uses: SamKirkland/FTP-Deploy-Action@3.0.0
-      with:
-        ftp-server: ${{ secrets.FTP_SERVER }}
-        ftp-username: ${{ secrets.FTP_USERNAME }}
-        ftp-password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: .
+      uses: SamKirkland/FTP-Deploy-Action@2.0.0
+      env:
+        FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        LOCAL_DIR: zips
+        REMOTE_DIR: .
+        ARGS: --verbose
+    - name: Unzip folders
+      run: |
+        curl https://status.poitrin.com/tools/extract-1354970716-1.php
+        curl https://status.poitrin.com/tools/extract-1354970716-2.php
+
