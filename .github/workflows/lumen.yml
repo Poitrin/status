@@ -33,10 +33,10 @@ jobs:
         LOCAL_DIR: zips
         REMOTE_DIR: .
         ARGS: --verbose
-    # - name: Unzip folders
-    #   run: |
-    #     curl https://status.poitrin.com/tools/extract-1354970716-1.php
-    #     curl https://status.poitrin.com/tools/extract-1354970716-2.php
+    - name: Unzip folders
+      run: |
+        curl https://status.poitrin.com/tools/extract-1354970716-1.php
+        curl https://status.poitrin.com/tools/extract-1354970716-2.php
     #     curl -X DELETE https://status.poitrin.com/api/cache
     #     curl -X POST https://status.poitrin.com/api/cache
 
