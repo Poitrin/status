@@ -34,15 +34,6 @@ A dashboard displays all the relevant data in the `logs` and `curl` tables.
     'DB_HOST' => '...'
   );
   ```
-- Create file `public/sites.php` with your sites to check:
-  ```php
-  <?php
-
-  return array(
-    "https://...",
-    ...
-  );
-  ```
 - Copy `.env.example` to `.env` and update values.
 - Update `public/stats.sh` by setting the correct `TOKEN` (it's the same as the `UPLOAD_SECRET`).
   - Note: This is not yet finalized!

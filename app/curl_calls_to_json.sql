@@ -12,4 +12,6 @@ from
   join
     alias a on c.url_effective = a.url
   group by
-    url_effective, alias ) t
+    url_effective, alias
+  order by
+    name ) t
